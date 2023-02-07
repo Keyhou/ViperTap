@@ -8,19 +8,40 @@
 import SwiftUI
 
 struct ContentView: View {
+    @ObservedObject var contentPresenter: ContentPresenter
+    @State var enteredClash = false
     var body: some View {
-        VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundColor(.accentColor)
-            Text("Hello, world!")
+        if #available(iOS 16.0, *) {
+            NavigationStack {
+                VStack {
+                    Button("Tap Me 👾 > iOS 16") {
+                        contentPresenter.showInteractorResponse(enteredClash: $enteredClash)
+                    }
+                    Text(contentPresenter.greeting)
+                }
+                .navigationDestination(isPresented: $enteredClash) {
+                    ClashView()
+                }
+            }
+            
+        } else {
+            NavigationView {
+                VStack {
+                    NavigationLink(destination: ClashView(), isActive: $enteredClash) {
+                        Button("Tap Me 👾 < iOS 16") {
+                            contentPresenter.showInteractorResponse(enteredClash: $enteredClash)
+                        }
+                        Text(contentPresenter.greeting)
+                    }
+                }
+            }
         }
-        .padding()
+        
     }
 }
 
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
-        ContentView()
+        ContentView(contentPresenter: ContentPresenter(interactor: ContentInteractor(), router: ContentRouter()))
     }
 }
